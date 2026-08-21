@@ -1,0 +1,5 @@
+[
+  {"question": "A patient presents with sudden severe chest pain radiating to the left arm and sweating. What is the most appropriate immediate action?", "opa": "Reassure and discharge", "opb": "Activate emergency services and obtain an ECG", "opc": "Prescribe antacids", "opd": "Schedule a routine appointment", "cop": 1, "exp": "These are red-flag symptoms of a possible myocardial infarction requiring emergency evaluation."},
+  {"question": "Which vital sign is most indicative of respiratory distress in triage?", "opa": "Blood glucose", "opb": "Oxygen saturation and respiratory rate", "opc": "Height", "opd": "Blood type", "cop": 1, "exp": "Low oxygen saturation and abnormal respiratory rate are key indicators of respiratory distress."},
+  {"question": "A febrile child is alert, drinking, and playing normally. Which triage priority is generally appropriate?", "opa": "Immediate/maximal priority", "opb": "Deferred/low priority with safety-net advice", "opc": "No assessment needed", "opd": "Emergency surgery", "cop": 1, "exp": "A well-appearing febrile child without red flags is usually lower priority, with advice on warning signs."}
+]

@@ -1,0 +1,5 @@
+[
+  {"question": "Parmi les signes suivants, lesquels évoquent une déshydratation sévère ?", "answer_a": "Soif intense", "answer_b": "Confusion", "answer_c": "Pouls rapide", "answer_d": "Peau rose et chaude", "answer_e": "Diurèse abondante", "correct_answers": ["A", "B", "C"]},
+  {"question": "Quel est le premier geste devant une douleur thoracique aiguë suspecte d'infarctus ?", "answer_a": "Rassurer et renvoyer chez soi", "answer_b": "Appeler le SAMU (15)", "answer_c": "Donner à boire", "answer_d": "Attendre 24 heures", "answer_e": "Prescrire du repos", "correct_answers": ["B"]},
+  {"question": "Parmi ces éléments, lesquels sont des constantes vitales ?", "answer_a": "Fréquence cardiaque", "answer_b": "Tension artérielle", "answer_c": "Saturation en oxygène", "answer_d": "Groupe sanguin", "answer_e": "Température", "correct_answers": ["A", "B", "C", "E"]}
+]

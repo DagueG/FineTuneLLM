@@ -1,0 +1,6 @@
+[
+  {"question": "What are the symptoms of dehydration?", "answer": "Common symptoms include thirst, dry mouth, dark urine, fatigue, dizziness and reduced urination. Severe dehydration can cause confusion and rapid heartbeat and needs urgent care.", "qtype": "symptoms"},
+  {"question": "What is hypertension?", "answer": "Hypertension is persistently high blood pressure in the arteries. It often has no symptoms but increases the risk of heart disease, stroke and kidney problems.", "qtype": "information"},
+  {"question": "How is a mild fever treated at home?", "answer": "Rest, drink fluids, and use paracetamol if needed for comfort. Seek medical care if the fever is very high, lasts several days, or is accompanied by warning signs such as difficulty breathing.", "qtype": "treatment"},
+  {"question": "What causes a migraine?", "answer": "Migraines are linked to changes in brain activity and blood flow. Triggers include stress, lack of sleep, certain foods, hormonal changes and bright lights.", "qtype": "causes"}
+]

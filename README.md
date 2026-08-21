@@ -57,6 +57,52 @@ puis, à la fin :
 - `command not found: pytest` → activez `.venv` puis `pip install -e ".[dev]"`.
 - Toute autre erreur → **copiez-collez-la telle quelle**, on diagnostique ensemble.
 
+## Étape 2 — Ingestion des sources
+
+Charge les 4 corpus, les **normalise** vers un schéma commun (`data/raw/<source>.jsonl`)
+et produit un **inventaire** (`data/raw/inventory.json`). Chaque source a un **repli
+synthétique** : si un téléchargement échoue, la pipeline continue au lieu de planter.
+
+### Installer les dépendances data
+
+```bash
+pip install -r requirements/data.txt
+```
+
+### Lancer l'ingestion
+
+Test hors-ligne immédiat (mini-jeux embarqués, aucune connexion requise) :
+
+```bash
+python scripts/ingest.py --force-fallback
+```
+
+Vrai téléchargement depuis le Hub (plafond 3000 lignes/source par défaut) :
+
+```bash
+python scripts/ingest.py
+```
+
+Options utiles : `--max-rows 500` (plus rapide), `--sources medquad frenchmedmcqa`
+(sous-ensemble), `--max-rows 0` (illimité).
+
+**Ce que tu dois voir si ça marche :** un tableau d'inventaire, puis soit
+`✅ Toutes les sources chargées depuis le Hub.`, soit la liste des sources tombées en
+repli avec la raison. Dans les deux cas, des fichiers `.jsonl` apparaissent dans `data/raw/`.
+
+### Action qui dépend de toi
+
+- Rien d'obligatoire pour tester en `--force-fallback`.
+- Pour le **vrai** téléchargement : aucune clé n'est requise pour les sources publiques.
+  Si une source s'avère *gated*, il faudra un **token Hugging Face** — mets-le dans `.env`
+  (`CHSA_HF_TOKEN=...`) **au moment où l'erreur l'indiquera**, pas avant.
+- ⚠️ **À trancher** : le créneau « MediQA » du brief est ambigu (défaut = MedMCQA). Dis-moi
+  quelle source tu veux exactement, je la câble.
+
+### En cas d'échec
+- Une source en repli n'est **pas** un échec : c'est le comportement voulu. Colle-moi la
+  ligne `hub_error` correspondante, je diagnostique (réseau, ID, version de `datasets`…).
+
 ## Structure
 
 ```

@@ -1,0 +1,7 @@
+-r base.txt
+# Ingestion des corpus. `datasets<4` est requis pour les sources à script de
+# chargement (ex. FrenchMedMCQA) : datasets>=4 a supprimé le support des scripts.
+datasets>=2.19,<4.0
+huggingface-hub>=0.23,<1.0
+pandas>=2.0
+pyarrow>=14.0
