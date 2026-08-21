@@ -75,3 +75,37 @@ def to_sft_messages(example: dict[str, Any]) -> dict[str, Any] | None:
             "kind": example.get("kind", ""),
         },
     }
+
+
+def to_dpo_record(example: dict[str, Any]) -> dict[str, Any] | None:
+    """Convertit un exemple de préférences en enregistrement DPO conversationnel.
+
+    Format attendu par TRL `DPOTrainer` (préférences conversationnelles) :
+    - `prompt`   : [system, user]
+    - `chosen`   : [assistant (réponse préférée)]
+    - `rejected` : [assistant (réponse rejetée)]
+
+    On réutilise le MÊME prompt système de triage que le SFT, pour la cohérence.
+    Retourne None si prompt / chosen / rejected est absent.
+    """
+    lang = example.get("language", "en")
+    if lang not in SYSTEM_PROMPTS:
+        lang = "en"
+    user = build_user_content(example)
+    chosen = (example.get("chosen") or "").strip()
+    rejected = (example.get("rejected") or "").strip()
+    if not (user and chosen and rejected):
+        return None
+    return {
+        "prompt": [
+            {"role": "system", "content": SYSTEM_PROMPTS[lang]},
+            {"role": "user", "content": user},
+        ],
+        "chosen": [{"role": "assistant", "content": chosen}],
+        "rejected": [{"role": "assistant", "content": rejected}],
+        "meta": {
+            "source": example.get("source", ""),
+            "language": lang,
+            "kind": "preference",
+        },
+    }

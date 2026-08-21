@@ -12,6 +12,7 @@ model:
 data:
   languages: [fr, en]
   sft_target_pairs: 5000
+  dpo_target_pairs: 3000
   raw_dir: data/raw
   processed_dir: data/processed
 

@@ -36,6 +36,7 @@ class DataConfig(BaseModel):
 
     languages: list[str] = Field(default_factory=lambda: ["fr", "en"])
     sft_target_pairs: int = 5000
+    dpo_target_pairs: int = 3000
     raw_dir: str = "data/raw"
     processed_dir: str = "data/processed"
 

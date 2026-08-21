@@ -129,6 +129,27 @@ Format d'une ligne : `{"messages": [{"role":"system",...},{"role":"user",...},
 {"role":"assistant",...}], "meta": {...}}` — directement chargeable par
 `datasets.load_dataset("json", data_files="data/processed/sft.jsonl")`.
 
+## Étape 4 — Construction du dataset DPO
+
+Construit les paires préférentielles (`data/processed/dpo.jsonl`) au format attendu par
+TRL `DPOTrainer`, avec contrôles de cohérence (chosen ≠ rejected), déduplication et
+plafonnement à la cible.
+
+### Pré-requis
+Avoir ingéré la source de préférences (`ultramedical_pref`) à l'étape 2.
+
+### Lancer la construction
+
+```bash
+python scripts\build_dpo.py --target 3000
+```
+
+**Attendu :** un récap (total, rejets par motif, doublons, langues) + `data\processed\dpo.jsonl`.
+Format d'une ligne : `{"prompt":[system,user], "chosen":[assistant], "rejected":[assistant], "meta":{...}}`.
+
+> Pour viser la cible : `python scripts\ingest.py --sources ultramedical_pref --max-rows 0`
+> puis relancer le build.
+
 ## Structure
 
 ```
