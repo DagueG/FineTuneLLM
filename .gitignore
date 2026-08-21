@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Environnements
+.venv/
+venv/
+.env
+
+# Données & artefacts (versionnés séparément, pas dans Git)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+logs/audit/*.jsonl
+models/
+checkpoints/
+wandb/
+mlruns/

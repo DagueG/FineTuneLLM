@@ -1,0 +1,4 @@
+# Dépendances transverses (étape 1). Volontairement minimales.
+pydantic>=2.6
+pydantic-settings>=2.2
+pyyaml>=6.0
