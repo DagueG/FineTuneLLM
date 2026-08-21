@@ -103,6 +103,32 @@ repli avec la raison. Dans les deux cas, des fichiers `.jsonl` apparaissent dans
 - Une source en repli n'est **pas** un échec : c'est le comportement voulu. Colle-moi la
   ligne `hub_error` correspondante, je diagnostique (réseau, ID, version de `datasets`…).
 
+## Étape 3 — Construction du dataset SFT
+
+Transforme les JSONL normalisés en un dataset SFT **conversationnel** prêt à l'entraînement
+(`data/processed/sft.jsonl`) : mise en forme avec prompt de triage, filtres qualité,
+déduplication, équilibrage entre sources.
+
+### Pré-requis
+Avoir lancé l'étape 2 au moins une fois (des `.jsonl` dans `data/raw/`).
+
+### Lancer la construction
+
+```bash
+python scripts\build_sft.py --target 5000
+```
+
+Options : `--target N`, `--no-preference-chosen` (ne pas réutiliser les réponses `chosen`
+des préférences), `--sources ...`.
+
+**Attendu :** un récapitulatif (total, rejets qualité, doublons, répartition par langue /
+source / type) et un fichier `data\processed\sft.jsonl`. Si la cible n'est pas atteinte,
+ingère plus de lignes : `python scripts\ingest.py --max-rows 0` puis relance.
+
+Format d'une ligne : `{"messages": [{"role":"system",...},{"role":"user",...},
+{"role":"assistant",...}], "meta": {...}}` — directement chargeable par
+`datasets.load_dataset("json", data_files="data/processed/sft.jsonl")`.
+
 ## Structure
 
 ```
