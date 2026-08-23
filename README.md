@@ -181,6 +181,31 @@ Sorties : `data\processed\*_anonymized.jsonl` + `anonymization_report.json`.
 > Si tu vois un `Traceback` mentionnant `tldextract`/`publicsuffix` **hors-ligne**, c'est un
 > avertissement réseau d'une dépendance de Presidio, sans effet sur le résultat.
 
+## Étape 6 — Splits, éval clinique, métadonnées & versionnement
+
+Dernière brique « données ». Découpe train/val/test (anti-fuite), pose le jeu d'évaluation
+clinique séparé, le schéma de métadonnées et une version reproductible du dataset.
+
+### Pré-requis
+Avoir lancé l'anonymisation (étape 5) : `*_anonymized.jsonl` présents.
+
+### Découper puis versionner
+
+```bash
+python scripts\split_dataset.py
+python scripts\version_dataset.py --version 1.0.0
+```
+
+**Attendu (split)** : par dataset, les effectifs `{train, val, test}` et `anti-fuite : OK`.
+**Attendu (version)** : la liste des fichiers avec leur empreinte SHA-256, un manifeste
+`data\processed\manifest.json` et une carte `docs\DATASET_CARD.md`.
+
+- Schéma de métadonnées : `docs\METADATA.md` (+ `src\chsa_triage\data\metadata.py`).
+- Jeu d'éval clinique séparé : `data\eval\clinical_eval.jsonl` (18 scénarios, 3 niveaux).
+
+> Sur de très petits volumes (mode fallback), le split `val` peut être vide (strates trop
+> petites) : c'est normal. Sur les 5 000/3 000 réels, le 90/5/5 donne des val/test corrects.
+
 ## Structure
 
 ```

@@ -21,3 +21,4 @@ models/
 checkpoints/
 wandb/
 mlruns/
+docs/DATASET_CARD.md
