@@ -150,6 +150,37 @@ Format d'une ligne : `{"prompt":[system,user], "chosen":[assistant], "rejected":
 > Pour viser la cible : `python scripts\ingest.py --sources ultramedical_pref --max-rows 0`
 > puis relancer le build.
 
+## Étape 5 — Anonymisation (Presidio) & RGPD
+
+Anonymise les datasets SFT/DPO (PII), produit un rapport et un **contrôle qualité**.
+Documentation de conformité : [`docs/RGPD.md`](docs/RGPD.md).
+
+### Installer les dépendances + modèles spaCy
+
+```bash
+pip install -r requirements/anonymize.txt
+python -m spacy download fr_core_news_md
+python -m spacy download en_core_web_lg
+```
+
+(Repli accepté si tu préfères plus léger : `fr_core_news_sm` / `en_core_web_sm`.)
+
+### Lancer l'anonymisation
+
+```bash
+python scripts\anonymize_dataset.py --strategy replace
+```
+
+Stratégies : `replace` (`<PERSON>`), `mask` (`****`), `redact` (suppression).
+
+**Attendu :** pour chaque fichier, le nombre d'entités masquées par type, et un contrôle
+qualité : **PII structurées résiduelles = 0 → OK**. Les « entités NER résiduelles » sont une
+métrique (faux positifs possibles des petits modèles sur du vocabulaire médical — voir RGPD.md).
+Sorties : `data\processed\*_anonymized.jsonl` + `anonymization_report.json`.
+
+> Si tu vois un `Traceback` mentionnant `tldextract`/`publicsuffix` **hors-ligne**, c'est un
+> avertissement réseau d'une dépendance de Presidio, sans effet sur le résultat.
+
 ## Structure
 
 ```
