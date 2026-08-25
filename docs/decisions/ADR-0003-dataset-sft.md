@@ -38,3 +38,12 @@ détaillées écrites dans `data/processed/sft_stats.json`.
 atteinte (peu d'exemples) : c'est normal. Sur données réelles, augmenter la volumétrie
 d'ingestion (`--max-rows 0`) permet d'atteindre 5 000. Les splits train/val/test et le jeu
 d'évaluation clinique seront constitués à l'étape 6 (séparation stricte train/éval).
+
+## Mise à jour — plafonnement de la part QCM
+
+`max_share_mcqa` (défaut 0.3) limite les sources QCM (FrenchMedMCQA, MedMCQA) à ~30 % du
+mélange. Motivation : entraîné à 50 % sur du QCM, le modèle apprenait à *générer des questions
+à choix multiples* au lieu de répondre en prose. En plafonnant le QCM et en laissant dominer
+les réponses rédigées (MedQuAD + `chosen` d'UltraMedical), le comportement cible devient une
+réponse d'aide au triage rédigée, sans perdre la couverture médicale apportée par le QCM.
+Le savoir médical provient surtout du pré-entraînement ; le SFT ne fait qu'orienter la forme.

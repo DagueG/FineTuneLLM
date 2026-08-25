@@ -70,3 +70,22 @@ Le rapport complet est écrit dans `data/processed/anonymization_report.json`.
 
 Évènements d'audit émis : `anonymize.start`, `data.anonymized` (par fichier, avec compteurs
 d'entités et résultat du QC), `anonymize.done`. Journal vérifiable via `verify_chain`.
+
+## 8. Deux modes d'anonymisation : arbitrage utilité ↔ confidentialité
+
+Le masquage NER agressif (PERSON/LOCATION/DATE_TIME) produit de nombreux **faux positifs sur
+du vocabulaire médical** (ex. « Fréquence cardiaque » masquée), ce qui **dégrade fortement la
+qualité du modèle entraîné** (il apprend à générer les jetons `<PERSON>`). Comme les corpus
+utilisés sont **publics et déjà dé-identifiés**, ce masquage n'apporte aucun bénéfice réel de
+confidentialité sur ces données. On distingue donc deux modes :
+
+- **`training`** (données d'entraînement, corpus publics) : masquage des **PII structurées
+  seulement** (email, téléphone, IBAN, carte) — vrai risque, détection fiable. Préserve le
+  contenu médical. C'est le mode utilisé pour produire le dataset d'entraînement.
+- **`full`** (par défaut ; destiné aux **vraies données patients** en production) : masquage
+  NER complet incluant noms/lieux/dates, comme exigé pour des données réellement identifiantes.
+
+Cet arbitrage est explicite et documenté : on ne sacrifie pas l'utilité du modèle pour un
+masquage sans bénéfice sur des données publiques, tout en conservant la capacité de masquage
+complet pour la production. Alternative possible : conserver PERSON avec un seuil de confiance
+élevé (compromis), ou une allow-list de termes médicaux.

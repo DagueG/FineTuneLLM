@@ -123,14 +123,17 @@ def anonymize_file(
     return report
 
 
-def run(strategy: str = "replace", qc_sample: int = 200, config_path: Optional[str] = None) -> dict:
+def run(strategy: str = "replace", qc_sample: int = 200, mode: str = "full",
+        config_path: Optional[str] = None) -> dict:
+    from chsa_triage.data.anonymize import DEFAULT_ENTITIES, TRAINING_ENTITIES
     cfg = load_config(config_path)
     proc = PROJECT_ROOT / cfg.data.processed_dir
     audit = AuditLogger(PROJECT_ROOT / cfg.audit.log_path)
-    anon = Anonymizer(strategy=strategy)
+    entities = TRAINING_ENTITIES if mode == "training" else DEFAULT_ENTITIES
+    anon = Anonymizer(strategy=strategy, entities=entities)
 
-    audit.log("anonymize.start", {"strategy": strategy, "backend": anon.backend,
-                                  "init": anon.init_reason})
+    audit.log("anonymize.start", {"strategy": strategy, "mode": mode, "entities": entities,
+                                  "backend": anon.backend, "init": anon.init_reason})
 
     reports = []
     for name in ("sft.jsonl", "dpo.jsonl"):
@@ -138,21 +141,25 @@ def run(strategy: str = "replace", qc_sample: int = 200, config_path: Optional[s
         out_path = proc / name.replace(".jsonl", "_anonymized.jsonl")
         reports.append(anonymize_file(in_path, out_path, anon, audit, qc_sample))
 
-    result = {"backend": anon.backend, "init_reason": anon.init_reason, "reports": reports}
+    result = {"backend": anon.backend, "mode": mode, "init_reason": anon.init_reason,
+              "reports": reports}
     with (proc / "anonymization_report.json").open("w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
-    audit.log("anonymize.done", {"files": [r.get("file") for r in reports]})
+    audit.log("anonymize.done", {"files": [r.get("file") for r in reports], "mode": mode})
     return result
 
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Anonymisation RGPD des datasets CHSA.")
     p.add_argument("--strategy", choices=["replace", "mask", "redact"], default="replace")
+    p.add_argument("--mode", choices=["full", "training"], default="full",
+                   help="'full' = masquage NER complet (données patients réelles) ; "
+                        "'training' = PII structurées seulement (préserve l'utilité, corpus publics).")
     p.add_argument("--qc-sample", type=int, default=200)
     args = p.parse_args()
 
-    res = run(strategy=args.strategy, qc_sample=args.qc_sample)
-    print(f"\n== Anonymisation ({res['backend']}) ==")
+    res = run(strategy=args.strategy, qc_sample=args.qc_sample, mode=args.mode)
+    print(f"\n== Anonymisation ({res['backend']}, mode={res['mode']}) ==")
     print(f"init : {res['init_reason']}")
     for r in res["reports"]:
         if r.get("status") == "absent":

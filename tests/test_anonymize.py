@@ -25,3 +25,12 @@ def test_empty_text():
     anon = Anonymizer()
     anon._backend = "regex"
     assert anon.anonymize("", language="en") == ("", [])
+
+
+def test_training_entities_exclude_noisy_ner():
+    from chsa_triage.data.anonymize import TRAINING_ENTITIES
+    # Le mode entraînement ne masque QUE les PII structurées (préserve le contenu médical).
+    for noisy in ("PERSON", "LOCATION", "DATE_TIME"):
+        assert noisy not in TRAINING_ENTITIES
+    for structured in ("EMAIL_ADDRESS", "PHONE_NUMBER", "IBAN_CODE"):
+        assert structured in TRAINING_ENTITIES

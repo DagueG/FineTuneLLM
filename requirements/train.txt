@@ -1,0 +1,12 @@
+-r base.txt
+# Entraînement SFT/DPO (LoRA/QLoRA) avec TRL. Versions à VÉRIFIER sur ta machine GPU
+# (elles évoluent vite) : le script teste la pipeline avant le vrai run.
+torch>=2.4
+transformers>=4.51
+trl>=0.20
+peft>=0.12
+datasets>=2.19,<4.0
+accelerate>=0.34
+# Optionnels :
+#   bitsandbytes>=0.43   # QLoRA 4-bit (profil 'low' / petite VRAM ; roues Windows dispo)
+#   wandb                # suivi d'entraînement (repli hors-ligne : WANDB_MODE=offline)

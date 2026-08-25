@@ -168,10 +168,13 @@ python -m spacy download en_core_web_lg
 ### Lancer l'anonymisation
 
 ```bash
-python scripts\anonymize_dataset.py --strategy replace
+python scripts\anonymize_dataset.py --strategy replace --mode training
 ```
 
-Stratégies : `replace` (`<PERSON>`), `mask` (`****`), `redact` (suppression).
+Modes : `--mode training` (PII **structurées seulement** — préserve le contenu médical, à
+utiliser pour les données d'entraînement issues de corpus publics) ; `--mode full` (masquage
+NER complet PERSON/LOCATION/DATE — pour de vraies données patients). Stratégies : `replace`
+(`<PERSON>`), `mask` (`****`), `redact`. Voir `docs/RGPD.md` §8 pour l'arbitrage.
 
 **Attendu :** pour chaque fichier, le nombre d'entités masquées par type, et un contrôle
 qualité : **PII structurées résiduelles = 0 → OK**. Les « entités NER résiduelles » sont une
@@ -205,6 +208,43 @@ python scripts\version_dataset.py --version 1.0.0
 
 > Sur de très petits volumes (mode fallback), le split `val` peut être vide (strates trop
 > petites) : c'est normal. Sur les 5 000/3 000 réels, le 90/5/5 donne des val/test corrects.
+
+## Étape 7 — Fine-tuning supervisé (SFT) LoRA
+
+Entraîne un adaptateur LoRA sur `Qwen3-1.7B-Base` à partir des splits SFT. **À lancer sur ta
+machine GPU (ou Colab)** — pas dans mon environnement.
+
+### Installer les dépendances (sur la machine GPU)
+
+```bash
+pip install -r requirements/train.txt
+```
+
+### Valider la pipeline AVANT le vrai run
+
+```bash
+python scripts\train_sft.py --dry-run     # prépare tout (données, profil) sans entraîner
+python scripts\train_sft.py --smoke       # run minuscule (4 pas) — valide le chemin TRL réel
+```
+
+**Attendu (dry-run)** : un JSON avec `status: dry_run_ok`, le profil auto-détecté, le nombre
+d'exemples. **Attendu (smoke)** : télécharge le modèle base (~3,4 Go, public, sans token),
+tourne 4 pas, écrit dans `models\sft-lora\`.
+
+### Vrai entraînement
+
+```bash
+python scripts\train_sft.py                       # profil auto-détecté depuis la VRAM
+python scripts\train_sft.py --profile mid --epochs 3 --report-to wandb
+python scripts\train_sft.py --resume              # reprise depuis le dernier checkpoint
+```
+
+Profils : `low` (≤8 Go, QLoRA 4-bit), `mid` (12–16 Go), `high` (≥24 Go). Sortie : adaptateur
+LoRA + tokenizer dans `models\sft-lora\`.
+
+> **Actions qui dépendent de toi** : installer la stack GPU ; si `--smoke` renvoie une erreur
+> d'API (les versions `transformers/trl/peft` bougent vite), **colle-la-moi** — je l'ajuste.
+> Le modèle base étant public, aucun token n'est requis pour entraîner.
 
 ## Structure
 

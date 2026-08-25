@@ -22,12 +22,15 @@ def main() -> int:
     p.add_argument("--target", type=int, default=None, help="Nombre cible de paires (défaut : config).")
     p.add_argument("--no-preference-chosen", action="store_true",
                    help="Ne pas utiliser les réponses 'chosen' des préférences comme paires SFT.")
+    p.add_argument("--max-share-mcqa", type=float, default=0.3,
+                   help="Part maximale de QCM dans le mélange (défaut 0.3 ; 1.0 = pas de plafond).")
     args = p.parse_args()
 
     stats = build(
         sources=args.sources,
         target=args.target,
         include_preference_chosen=not args.no_preference_chosen,
+        max_share_mcqa=args.max_share_mcqa,
     )
     print("\n== Dataset SFT construit ==")
     print(format_stats(stats))

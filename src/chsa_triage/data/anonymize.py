@@ -27,6 +27,14 @@ DEFAULT_ENTITIES = [
     "LOCATION", "CREDIT_CARD", "IBAN_CODE",
 ]
 
+# Entités "préservant l'utilité" pour les données D'ENTRAÎNEMENT : uniquement les PII
+# structurées (vrai risque, détection fiable). On évite PERSON/LOCATION/DATE_TIME dont les
+# petits/moyens modèles NER font de nombreux faux positifs sur du vocabulaire médical, ce qui
+# dégrade la qualité du modèle entraîné. Justifié car les corpus sont publics et déjà
+# dé-identifiés à la source. Le masquage NER complet reste disponible (mode "full"), destiné
+# aux vraies données patients en production.
+TRAINING_ENTITIES = ["EMAIL_ADDRESS", "PHONE_NUMBER", "CREDIT_CARD", "IBAN_CODE"]
+
 _MODEL_CANDIDATES = {
     "fr": ["fr_core_news_md", "fr_core_news_sm"],
     "en": ["en_core_web_lg", "en_core_web_sm"],

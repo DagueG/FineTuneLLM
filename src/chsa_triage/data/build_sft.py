@@ -64,6 +64,7 @@ def build(
     sources: Optional[list[str]] = None,
     target: Optional[int] = None,
     include_preference_chosen: bool = True,
+    max_share_mcqa: Optional[float] = 0.3,
     min_q: int = 10,
     min_a: int = 3,
     max_len: int = 6000,
@@ -80,7 +81,8 @@ def build(
 
     keys = sources or list(REGISTRY.keys())
     audit.log("sft.build.start", {"sources": keys, "target": target, "seed": seed,
-                                  "include_preference_chosen": include_preference_chosen})
+                                  "include_preference_chosen": include_preference_chosen,
+                                  "max_share_mcqa": max_share_mcqa})
 
     # 1-3. Lecture, filtre qualité, mise en forme — regroupés par source.
     by_source: dict[str, list[dict]] = {}
@@ -121,20 +123,33 @@ def build(
             deduped.append(rec)
         by_source[key] = deduped
 
-    # 5. Équilibrage round-robin entre sources, plafonné à la cible.
+    # 5. Équilibrage : on plafonne la part de QCM (comportement cible = réponses rédigées,
+    #    pas des questions à choix multiples), le reste vient des sources rédigées (QA + chosen).
     rng = random.Random(seed)
     for lst in by_source.values():
         rng.shuffle(lst)
     order = [k for k in keys if by_source.get(k)]
-    idx = {k: 0 for k in order}
-    result: list[dict] = []
-    while len(result) < target and any(idx[k] < len(by_source[k]) for k in order):
-        for k in order:
-            if idx[k] < len(by_source[k]):
-                result.append(by_source[k][idx[k]])
-                idx[k] += 1
-                if len(result) >= target:
-                    break
+    mcqa_keys = [k for k in order if REGISTRY[k].kind == "mcqa"]
+    other_keys = [k for k in order if REGISTRY[k].kind != "mcqa"]
+
+    def _round_robin(src_keys: list[str], budget: int) -> list[dict]:
+        picked: list[dict] = []
+        pos = {k: 0 for k in src_keys}
+        while len(picked) < budget and any(pos[k] < len(by_source[k]) for k in src_keys):
+            for k in src_keys:
+                if pos[k] < len(by_source[k]):
+                    picked.append(by_source[k][pos[k]])
+                    pos[k] += 1
+                    if len(picked) >= budget:
+                        break
+        return picked
+
+    mcqa_budget = int(max_share_mcqa * target) if max_share_mcqa is not None else target
+    mcqa_part = _round_robin(mcqa_keys, mcqa_budget)
+    other_part = _round_robin(other_keys, target - len(mcqa_part))
+    result = mcqa_part + other_part
+    rng.shuffle(result)
+    result = result[:target]
 
     # 6. Écriture + stats + audit.
     out_path = out_dir / "sft.jsonl"
