@@ -27,9 +27,10 @@ def test_low_profile_uses_qlora():
     assert PROFILES["mid"].load_4bit is False
 
 
-def test_detect_vram_no_torch_or_gpu():
-    # Sans GPU (bac à sable), doit renvoyer None sans lever.
-    assert detect_vram_gb() is None
+def test_detect_vram_returns_none_or_positive_float():
+    # Portable : None si pas de GPU (CI), sinon une VRAM valide (machine GPU).
+    v = detect_vram_gb()
+    assert v is None or (isinstance(v, float) and v >= 0)
 
 
 def test_bridge_hf_token(monkeypatch):

@@ -246,6 +246,39 @@ LoRA + tokenizer dans `models\sft-lora\`.
 > d'API (les versions `transformers/trl/peft` bougent vite), **colle-la-moi** — je l'ajuste.
 > Le modèle base étant public, aucun token n'est requis pour entraîner.
 
+## Étape 8 — Évaluation clinique + contrôles de sécurité
+
+Évalue le modèle SFT sur le jeu d'éval clinique séparé : exactitude de la priorité, contrôles
+de sécurité (recommandations dangereuses), rappel des signes d'alerte. Inclut un module
+d'inférence propre (`infer/generate.py`) réutilisé par l'API.
+
+### Tester la pipeline d'éval sans GPU
+
+```bash
+python scripts\evaluate.py --mock
+```
+
+### Évaluer le vrai modèle (sur GPU)
+
+```bash
+python scripts\evaluate.py --model-dir models\sft-lora
+```
+
+**Attendu** : un résumé (exactitude globale + par niveau, réponses non parsées, drapeaux de
+sécurité) et un rapport complet `data\processed\eval_report.json` (avec les réponses, pour
+audit clinique). Les cas avec drapeau de sécurité sont signalés.
+
+### Générer une réponse en un appel propre (démo)
+
+```python
+from chsa_triage.infer.generate import TriageModel
+tm = TriageModel.load("models/sft-lora")
+print(tm.generate([
+    {"role": "system", "content": "You are a medical triage decision-support assistant for CHSA."},
+    {"role": "user", "content": "A 55-year-old man has chest pain radiating to the left arm with sweating."},
+]))
+```
+
 ## Structure
 
 ```
