@@ -304,3 +304,23 @@ chsa-triage/
 6. Splits train/val/test + jeu d'éval clinique + schéma de métadonnées + versionnement.
 7–10. SFT LoRA, évaluation & sécurité, DPO, comparaison.
 11–15. FastAPI + vLLM (avec fallback), Docker, CI/CD GitHub Actions, déploiement, rapport.
+
+## Étape 9 — Alignement par préférences (DPO)
+
+Entraîne un adaptateur DPO **au-dessus du SFT** (fusion de l'adaptateur SFT + nouveau LoRA).
+
+### Pré-requis
+Le SFT est entraîné (`models\sft-lora\`), et les splits DPO existent (étape 6).
+
+### Valider puis lancer
+
+```bash
+python scripts\train_dpo.py --dry-run     # vérifie données + présence de l'adaptateur SFT
+python scripts\train_dpo.py --smoke       # run minuscule
+python scripts\train_dpo.py               # vrai DPO (profil auto)
+```
+
+**Attendu** : JSON avec `status: trained` et un dossier `models\dpo-lora\`. En cas de
+`CUDA out of memory`, utilise `--profile low` (QLoRA, `pip install bitsandbytes`).
+
+> Le DPO part du modèle SFT : si l'adaptateur SFT est absent, le script le signale.
