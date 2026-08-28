@@ -1,0 +1,5 @@
+-r base.txt
+fastapi>=0.110
+uvicorn[standard]>=0.29
+# Inférence : réutilise requirements/train.txt (torch/transformers/peft) pour le mode modèle.
+# vLLM (déploiement cloud/Linux) est ajouté à l'étape cloud : voir docs.

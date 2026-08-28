@@ -350,3 +350,28 @@ python scripts\compare_models.py --models models\sft-merged models\dpo-merged
 ```
 
 `TriageModel.load(dir)` accepte aussi bien un adaptateur qu'un modèle complet fusionné.
+
+## Étape 11 — API de déploiement (FastAPI)
+
+API de triage avec repli sans modèle (répond même sans GPU/poids).
+
+### Installer et lancer
+
+```bash
+pip install -r requirements\serve.txt
+python scripts\serve_api.py
+```
+
+Ouvre http://127.0.0.1:8000/docs (Swagger). Variables : `CHSA_MODEL_DIR`
+(défaut `models\dpo-merged`), `CHSA_DEVICE` (défaut `cuda`).
+
+### Tester
+
+```bash
+curl http://127.0.0.1:8000/health
+curl -X POST http://127.0.0.1:8000/triage -H "Content-Type: application/json" ^
+  -d "{\"text\":\"A 60-year-old with sudden difficulty breathing\",\"language\":\"en\"}"
+```
+
+`/health` indique `mode: model` (poids chargés) ou `mode: fallback` (repli). Chaque appel est
+tracé dans le journal d'audit (métadonnées seulement, RGPD).
