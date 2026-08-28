@@ -66,3 +66,13 @@ def test_evaluate_with_mock_generator():
     assert rep["priority_accuracy"] == 1.0
     assert rep["safety_flagged"] == 0
     assert rep["unparsed"] == 0
+
+
+def test_is_adapter_dir(tmp_path):
+    from chsa_triage.infer.generate import is_adapter_dir
+    adapter = tmp_path / "adapter"; adapter.mkdir()
+    (adapter / "adapter_config.json").write_text("{}", encoding="utf-8")
+    full = tmp_path / "full"; full.mkdir()
+    (full / "config.json").write_text("{}", encoding="utf-8")
+    assert is_adapter_dir(str(adapter)) is True
+    assert is_adapter_dir(str(full)) is False

@@ -324,3 +324,29 @@ python scripts\train_dpo.py               # vrai DPO (profil auto)
 `CUDA out of memory`, utilise `--profile low` (QLoRA, `pip install bitsandbytes`).
 
 > Le DPO part du modèle SFT : si l'adaptateur SFT est absent, le script le signale.
+
+## Étape 10 — Comparaison SFT vs DPO
+
+```bash
+python scripts\compare_models.py --models models\sft-lora models\dpo-lora
+```
+
+**Attendu** : un tableau comparatif (SFT vs DPO) sur le jeu clinique + `comparison_report.json`.
+Teste la pipeline sans GPU avec `--mock`.
+
+## Fusion des adaptateurs (serving + éval correcte)
+
+**Le DPO est entraîné au-dessus du SFT** : pour l'évaluer et le déployer correctement, on fusionne
+les adaptateurs en modèles complets.
+
+```bash
+python scripts\merge_model.py --which both       # -> models\sft-merged, models\dpo-merged
+```
+
+Puis compare les modèles COMPLETS (empilement SFT+DPO correct) :
+
+```bash
+python scripts\compare_models.py --models models\sft-merged models\dpo-merged
+```
+
+`TriageModel.load(dir)` accepte aussi bien un adaptateur qu'un modèle complet fusionné.

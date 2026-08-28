@@ -22,3 +22,8 @@ d'évaluation), pour quantifier l'apport de l'alignement.
 ## Limites de test
 Comme le SFT : le run réel se valide côté GPU (torch/Hub indisponibles ici). Sont testés :
 logique de profils, dry-run, filtrage des arguments de config.
+
+## Étape 10 — Comparaison SFT vs DPO
+`scripts/compare_models.py` évalue plusieurs modèles sur le MÊME harnais clinique et sort un
+tableau comparatif (exactitude globale + par niveau, sécurité, non parsées, rappel signes
+d'alerte) + `data/processed/comparison_report.json`. Permet de quantifier l'apport du DPO.

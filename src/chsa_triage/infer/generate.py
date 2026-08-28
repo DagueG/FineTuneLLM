@@ -32,6 +32,12 @@ def clean_generation(text: str) -> str:
     return "\n".join(lines).strip()
 
 
+def is_adapter_dir(model_dir: str) -> bool:
+    """Vrai si le dossier contient un adaptateur PEFT (et non un modèle complet)."""
+    from pathlib import Path
+    return (Path(model_dir) / "adapter_config.json").exists()
+
+
 class TriageModel:
     """Charge un modèle SFT/DPO (adaptateur LoRA) et génère des réponses de triage."""
 
@@ -45,10 +51,14 @@ class TriageModel:
 
     @classmethod
     def load(cls, model_dir: str, device: str = "cuda") -> "TriageModel":
-        """Charge l'adaptateur LoRA + son tokenizer (import paresseux)."""
-        from peft import AutoPeftModelForCausalLM
+        """Charge un modèle complet OU un adaptateur LoRA + son tokenizer (import paresseux)."""
         from transformers import AutoTokenizer
-        model = AutoPeftModelForCausalLM.from_pretrained(model_dir).to(device)
+        if is_adapter_dir(model_dir):
+            from peft import AutoPeftModelForCausalLM
+            model = AutoPeftModelForCausalLM.from_pretrained(model_dir).to(device)
+        else:
+            from transformers import AutoModelForCausalLM
+            model = AutoModelForCausalLM.from_pretrained(model_dir).to(device)
         model.eval()
         tokenizer = AutoTokenizer.from_pretrained(model_dir)
         return cls(model, tokenizer, device=device)
