@@ -14,7 +14,6 @@ import spaces
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# ⚠️ Remplace par TON dépôt de modèle (ex. "ton-user/chsa-triage-dpo").
 MODEL_ID = os.environ.get("CHSA_MODEL_ID", "DagueGG/chsa-triage-dpo")
 
 SYSTEM_PROMPTS = {
