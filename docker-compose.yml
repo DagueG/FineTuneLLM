@@ -1,0 +1,13 @@
+services:
+  triage-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Mode repli par défaut. Pour servir le vrai modèle :
+      #   - décommenter l'install torch dans le Dockerfile,
+      #   - monter le dossier models/ et pointer CHSA_MODEL_DIR dessus,
+      #   - mettre CHSA_DEVICE=cuda avec un runtime GPU.
+      CHSA_DEVICE: cpu
+    # volumes:
+    #   - ./models:/app/models:ro

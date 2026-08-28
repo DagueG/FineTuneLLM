@@ -375,3 +375,24 @@ curl -X POST http://127.0.0.1:8000/triage -H "Content-Type: application/json" ^
 
 `/health` indique `mode: model` (poids chargés) ou `mode: fallback` (repli). Chaque appel est
 tracé dans le journal d'audit (métadonnées seulement, RGPD).
+
+## Étapes 12-13 — Docker & CI/CD
+
+### Docker (API)
+
+```bash
+docker build -t chsa-triage-api .
+docker run -p 8000:8000 chsa-triage-api        # démarre en mode repli
+# ou :
+docker compose up --build
+```
+
+`curl http://localhost:8000/health` doit renvoyer `mode: fallback`. Pour servir le vrai
+modèle : décommenter l'install `requirements/train.txt` dans le Dockerfile, monter `models/`
+et mettre `CHSA_DEVICE=cuda` (runtime GPU).
+
+### CI/CD (GitHub Actions)
+
+`.github/workflows/ci.yml` : à chaque push/PR, lance les tests (job `tests`) puis construit
+l'image et teste `/health` dans le conteneur (job `docker-build`). Pousse le dépôt sur GitHub
+pour l'activer (onglet **Actions**).
