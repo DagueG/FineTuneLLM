@@ -31,5 +31,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
     CMD curl -fs http://localhost:8000/health || exit 1
 
-# Lancement direct d'uvicorn (pas besoin de copier scripts/ dans l'image de service)
-CMD ["sh", "-c", "uvicorn chsa_triage.api.app:app --host ${CHSA_HOST} --port ${CHSA_PORT}"]
+# Lancement direct d'uvicorn ; utilise $PORT si fourni par la plateforme (Render, Cloud Run…)
+CMD ["sh", "-c", "uvicorn chsa_triage.api.app:app --host ${CHSA_HOST} --port ${PORT:-${CHSA_PORT}}"]
